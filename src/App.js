@@ -1,29 +1,36 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+
+function complexCompute(num) {
+  console.log('complexCompute');
+  let i = 0;
+  while (i < 1000000000) i++;
+
+  return num * 2;
+}
 
 function App() {
-  // const [renderCount,setRenderCount] = useState(1);
-  const [value, setValue] = useState('initial');
-  const renderCount = useRef(1);
-  const inputRef = useRef(null);
-  const prevValue = useRef('');
+  const [number, setNumber] = useState(42);
+  const [colored, setColored] = useState(false);
+
+  const styles = useMemo(() => ({
+    color: colored ? 'darkred' : 'black',
+  }), [colored]);
+
+  const computed = useMemo(() => {
+    return complexCompute(number)
+  }, [number]);
 
   useEffect(() => {
-    renderCount.current++;
-  });
-
-  useEffect(() => {
-    prevValue.current = value;
-  }, [value]);
-
-  const focus = () => inputRef.current.focus();
+    console.log('Styles changed');
+  }, [styles]);
 
   return (
-    <div>
-      <h1>Количество рендеров: {renderCount.current}</h1>
-      <h1>Прошлое состояние: {prevValue.current}</h1>
-      <input ref={inputRef} type="text" onChange={e => setValue(e.target.value)} value={value}/>
-      <button className='btn btn-success' onClick={focus}>Фокус</button>
-    </div>
+    <>
+      <h1 style={styles}>Вычисляемое свойство: {computed}</h1>
+      <button className='btn btn-success' onClick={() => setNumber(prev => prev + 1)}>Добавить</button>
+      <button className='btn btn-danger' onClick={() => setNumber(prev => prev - 1)}>Убрать</button>
+      <button className='btn btn-warning' onClick={() => setColored(prev => !prev)}>Изменить</button>
+    </>
   );
 }
 
