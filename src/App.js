@@ -1,53 +1,54 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-function computeInitialCounter() {
-  console.log('Some calculations....');
-  return Math.trunc(Math.random() * 20);
-}
 
 function App() {
-  // const [counter, setCounter] = useState(0);
-  // const [counter, setCounter] = useState(computeInitialCounter);
-  const [counter, setCounter] = useState(() => {
-    return computeInitialCounter();
+  const [type, setType] = useState('users');
+  const [data, setData] = useState([]);
+  const [pos, setPos] = useState({
+    x: 0, y: 0
   });
+  
+  // useEffect(() => {
+  //   console.log('render');
+  // });
 
-  const [state, setState] = useState({
-    title: 'Счетчик',
-    date: Date.now(),
-  });
+  useEffect(() => {
+    fetch(`https://jsonplaceholder.typicode.com/${type}`)
+      .then(response => response.json())
+      .then(json => setData(json))
 
-  function increment() {
-    // setCounter(counter + 1);
-    // setCounter(counter + 1);
+    return () => {
+      console.log('clean type');
+    };  
+  }, [type]);
 
-    setCounter((prevCounter) => {
-      return prevCounter + 1;
-    });
-    // setCounter(prev => prev + 1);
-  }
+  const mouseMoveHandler = event => {
+    setPos({
+      x: event.clientX,
+      y: event.clientY,
+    })
+  };
 
-  function decrement() {
-    setCounter(counter - 1);
-  }
+  useEffect(() => {
+    console.log('ComponentDidMount');
 
-  function updateTitle() {
-    setState(prev => {
-      return {
-        ...prev,
-        title: "Новое название",
-      }
-    });
-  }
+    window.addEventListener('mousemove', mouseMoveHandler);
+
+    return () => {
+      window.removeEventListener('mousemove', mouseMoveHandler);
+    };
+  }, []);
 
   return (
     <div>
-      <h1>Счетчик {counter}</h1>
-      <button onClick={increment} className="btn btn-success">Добавить</button>
-      <button onClick={decrement} className="btn btn-danger">Убрать</button>
-      <button onClick={updateTitle} className="btn btn-default">Изменить название</button>
+      <h1>Ресурс: {type}</h1>
 
-      <pre>{JSON.stringify(state, null, 2)}</pre>
+      <button onClick={() => setType('users')}>Пользователи</button>
+      <button onClick={() => setType('todos')}>Todos</button>
+      <button onClick={() => setType('posts')}>Посты</button>
+
+      {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
+      <pre>{JSON.stringify(pos, null, 2)}</pre>
     </div>
   );
 }
